@@ -1,3 +1,14 @@
+use bevy::prelude::*;
+
+mod components;
+mod plugins;
+
 fn main() {
-    println!("Hello, world!");
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .add_plugins(plugins::camera::CameraPlugin)
+        .add_plugins(plugins::tank::TankPlugin)
+        .add_plugins(plugins::movement::MovementPlugin)
+        // .add_plugins(plugins::debug::DebugPlugin)
+        .run();
 }
