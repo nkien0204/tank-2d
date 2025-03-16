@@ -1,6 +1,9 @@
 use super::asset_loader::ImageAssets;
 use super::movement::{Acceleration, MovingObjectBundle};
-use crate::components::tank::{Opponent, Velocity};
+use crate::components::{
+    collider::Collider,
+    tank::{Opponent, Velocity},
+};
 use bevy::prelude::*;
 use rand::Rng;
 use std::ops::Range;
@@ -8,6 +11,7 @@ use std::ops::Range;
 const SPAWN_RANGE_X: Range<f32> = -500.0..500.0;
 const SPAWN_RANGE_Y: Range<f32> = -500.0..500.0;
 const SPAWN_TIME_SECONDS: f32 = 1.0;
+const OPPONENT_RADIUS: f32 = 10.0;
 
 #[derive(Resource, Debug)]
 pub struct SpawnTimer {
@@ -20,7 +24,7 @@ impl Plugin for OpponentPlugin {
         app.insert_resource(SpawnTimer {
             timer: Timer::from_seconds(SPAWN_TIME_SECONDS, TimerMode::Repeating),
         })
-        .add_systems(Update, spawn_opponent);
+        .add_systems(Update, (spawn_opponent, handle_opponent_collision));
     }
 }
 
@@ -59,6 +63,10 @@ fn spawn_opponent(
             acceleration: Acceleration {
                 value: acceleration,
             },
+            collider: Collider {
+                radius: OPPONENT_RADIUS,
+                colliding_entities: Vec::new(),
+            },
             transform: Transform {
                 translation,
                 scale: super::DEFAULT_SCALE,
@@ -71,4 +79,19 @@ fn spawn_opponent(
         },
         Opponent,
     ));
+}
+
+fn handle_opponent_collision(
+    mut commands: Commands,
+    query: Query<(Entity, &Collider), With<Opponent>>,
+) {
+    for (entity, collider) in query.iter() {
+        for &collided_entity in collider.colliding_entities.iter() {
+            if query.get(collided_entity).is_ok() {
+                continue;
+            }
+
+            commands.entity(entity).despawn_recursive();
+        }
+    }
 }

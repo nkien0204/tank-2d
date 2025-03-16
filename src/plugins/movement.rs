@@ -1,4 +1,4 @@
-use crate::components::tank::Velocity;
+use crate::components::{collider::Collider, tank::Velocity};
 use bevy::prelude::*;
 
 #[derive(Component, Debug)]
@@ -9,6 +9,7 @@ pub struct Acceleration {
 #[derive(Bundle)]
 pub struct MovingObjectBundle {
     pub velocity: Velocity,
+    pub collider: Collider,
     pub acceleration: Acceleration,
     pub transform: Transform,
     pub model: Sprite,
