@@ -13,3 +13,4 @@ opt-level = 3
 
 [dependencies]
 bevy = { version = "0.15.3", features = ["png"] }
+rand = "0.9.0"
