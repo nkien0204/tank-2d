@@ -55,7 +55,9 @@ fn handle_movement(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
-    let (mut transform, mut velocity) = query.single_mut();
+    let Ok((mut transform, mut velocity)) = query.get_single_mut() else {
+        return;
+    };
     let mut rotation = 0.0;
     let mut movement = 0.0;
 
@@ -82,7 +84,9 @@ fn handle_tank_shell(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     image_assets: Res<ImageAssets>,
 ) {
-    let transform = query.single();
+    let Ok(transform) = query.get_single() else {
+        return;
+    };
 
     if keyboard_input.just_pressed(KeyCode::KeyJ) {
         commands.spawn((

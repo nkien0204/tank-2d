@@ -24,7 +24,7 @@ impl Plugin for OpponentPlugin {
         app.insert_resource(SpawnTimer {
             timer: Timer::from_seconds(SPAWN_TIME_SECONDS, TimerMode::Repeating),
         })
-        .add_systems(Update, (spawn_opponent, handle_opponent_collision));
+        .add_systems(Update, spawn_opponent);
     }
 }
 
@@ -88,21 +88,6 @@ fn spawn_opponent(
         },
         Opponent,
     ));
-}
-
-fn handle_opponent_collision(
-    mut commands: Commands,
-    query: Query<(Entity, &Collider), With<Opponent>>,
-) {
-    for (entity, collider) in query.iter() {
-        for &collided_entity in collider.colliding_entities.iter() {
-            if query.get(collided_entity).is_ok() {
-                continue;
-            }
-
-            commands.entity(entity).despawn_recursive();
-        }
-    }
 }
 
 fn calculate_angle(u: Vec3, v: Vec3) -> f32 {
