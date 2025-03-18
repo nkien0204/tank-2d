@@ -1,6 +1,8 @@
 use crate::components::{collider::Collider, tank::Velocity};
 use bevy::prelude::*;
 
+use super::game_state::GameState;
+
 #[derive(Component, Debug)]
 pub struct Acceleration {
     pub value: Vec3,
@@ -19,7 +21,10 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (update_velocity, update_position));
+        app.add_systems(
+            Update,
+            (update_velocity, update_position).run_if(in_state(GameState::InGame)),
+        );
     }
 }
 

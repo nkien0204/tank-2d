@@ -1,9 +1,11 @@
 use crate::components::{
     collider::Collider,
-    tank::{Opponent, Tank},
+    tank::{Opponent, OpponentGun, Tank, TankGun, TankShell},
 };
 use bevy::prelude::*;
 use std::collections::HashMap;
+
+use super::game_state::GameState;
 
 pub struct CollisionDetectionPlugin;
 impl Plugin for CollisionDetectionPlugin {
@@ -14,12 +16,19 @@ impl Plugin for CollisionDetectionPlugin {
                 detect_collision,
                 handle_collisions::<Tank>,
                 handle_collisions::<Opponent>,
-            ),
+                handle_collisions::<TankShell>,
+            )
+                .run_if(in_state(GameState::InGame)),
         );
     }
 }
 
-fn detect_collision(mut query: Query<(Entity, &GlobalTransform, &mut Collider)>) {
+fn detect_collision(
+    mut query: Query<
+        (Entity, &GlobalTransform, &mut Collider),
+        (Without<TankGun>, Without<OpponentGun>),
+    >,
+) {
     let mut colliding_entity_map: HashMap<Entity, Vec<Entity>> = HashMap::new();
 
     for (entity_a, transform_a, collider_a) in query.iter() {
@@ -61,7 +70,6 @@ fn handle_collisions<T: Component>(
             if query.get(colliding_entity).is_ok() {
                 continue;
             }
-            println!("depawn entity: {:?}", entity);
             commands.entity(entity).despawn_recursive();
         }
     }

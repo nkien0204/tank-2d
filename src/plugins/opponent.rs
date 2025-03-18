@@ -1,8 +1,9 @@
 use super::asset_loader::ImageAssets;
+use super::game_state::GameState;
 use super::movement::{Acceleration, MovingObjectBundle};
 use crate::components::{
     collider::Collider,
-    tank::{Opponent, Velocity},
+    tank::{Opponent, OpponentGun, Velocity},
 };
 use bevy::prelude::*;
 use rand::Rng;
@@ -24,7 +25,7 @@ impl Plugin for OpponentPlugin {
         app.insert_resource(SpawnTimer {
             timer: Timer::from_seconds(SPAWN_TIME_SECONDS, TimerMode::Repeating),
         })
-        .add_systems(Update, spawn_opponent);
+        .add_systems(Update, spawn_opponent.run_if(in_state(GameState::InGame)));
     }
 }
 
@@ -70,6 +71,9 @@ fn spawn_opponent(
         transform.rotate_z(-rotate_angle);
     }
 
+    let mut gun_transform = transform.clone();
+    gun_transform.translation += Vec3::new(0.0, 2.0, 0.1);
+
     commands.spawn((
         MovingObjectBundle {
             velocity: Velocity { value: velocity },
@@ -88,6 +92,25 @@ fn spawn_opponent(
         },
         Opponent,
     ));
+
+    // commands.spawn((
+    //     MovingObjectBundle {
+    //         velocity: Velocity { value: velocity },
+    //         acceleration: Acceleration {
+    //             value: acceleration,
+    //         },
+    //         collider: Collider {
+    //             radius: OPPONENT_RADIUS,
+    //             colliding_entities: Vec::new(),
+    //         },
+    //         transform: gun_transform,
+    //         model: Sprite {
+    //             image: image_assets.opponent_gun.clone(),
+    //             ..default()
+    //         },
+    //     },
+    //     OpponentGun,
+    // ));
 }
 
 fn calculate_angle(u: Vec3, v: Vec3) -> f32 {

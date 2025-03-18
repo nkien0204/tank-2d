@@ -9,7 +9,13 @@ pub struct Velocity {
 pub struct Tank;
 
 #[derive(Component, Debug)]
+pub struct TankGun;
+
+#[derive(Component, Debug)]
 pub struct TankShell;
 
 #[derive(Component, Debug)]
 pub struct Opponent;
+
+#[derive(Component, Debug)]
+pub struct OpponentGun;
