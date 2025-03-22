@@ -1,6 +1,6 @@
 use crate::components::{
     collider::Collider,
-    tank::{Opponent, OpponentGun, Tank, TankGun, TankShell},
+    tank::{Opponent, Tank, TankShell},
 };
 use bevy::prelude::*;
 use std::collections::HashMap;
@@ -23,16 +23,11 @@ impl Plugin for CollisionDetectionPlugin {
     }
 }
 
-fn detect_collision(
-    mut query: Query<
-        (Entity, &GlobalTransform, &mut Collider),
-        (Without<TankGun>, Without<OpponentGun>),
-    >,
-) {
-    let mut colliding_entity_map: HashMap<Entity, Vec<Entity>> = HashMap::new();
+fn detect_collision(mut query: Query<(Entity, &GlobalTransform, &mut Collider, &Name)>) {
+    let mut colliding_entity_map: HashMap<Entity, Vec<(Entity, Name)>> = HashMap::new();
 
-    for (entity_a, transform_a, collider_a) in query.iter() {
-        for (entity_b, transform_b, collider_b) in query.iter() {
+    for (entity_a, transform_a, collider_a, _) in query.iter() {
+        for (entity_b, transform_b, collider_b, name_b) in query.iter() {
             if entity_a == entity_b {
                 continue;
             }
@@ -46,28 +41,31 @@ fn detect_collision(
                 colliding_entity_map
                     .entry(entity_a)
                     .or_insert_with(Vec::new)
-                    .push(entity_b);
+                    .push((entity_b, name_b.clone()));
             }
         }
     }
 
-    for (entity, _, mut collider) in query.iter_mut() {
+    for (entity, _, mut collider, _name) in query.iter_mut() {
         collider.colliding_entities.clear();
         if let Some(colliding_entities) = colliding_entity_map.get(&entity) {
             collider
                 .colliding_entities
-                .extend(colliding_entities.iter().copied());
+                .extend(colliding_entities.clone());
         }
     }
 }
 
 fn handle_collisions<T: Component>(
     mut commands: Commands,
-    query: Query<(Entity, &Collider), With<T>>,
+    query: Query<(Entity, &Name, &Collider), With<T>>,
 ) {
-    for (entity, collider) in query.iter() {
-        for &colliding_entity in collider.colliding_entities.iter() {
-            if query.get(colliding_entity).is_ok() {
+    for (entity, name, collider) in query.iter() {
+        for colliding_entity in collider.colliding_entities.iter() {
+            if query.get(colliding_entity.0).is_ok() {
+                continue;
+            }
+            if name.as_str() == colliding_entity.1.as_str() {
                 continue;
             }
             commands.entity(entity).despawn_recursive();

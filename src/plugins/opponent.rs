@@ -106,6 +106,7 @@ fn spawn_opponent(
                 },
             },
             Opponent,
+            Name::new("Opponent"),
         ))
         .with_child((
             GunBundle {
@@ -158,6 +159,7 @@ fn handle_shell(
                 },
             },
             OpponentShell,
+            Name::new("Opponent"),
         ));
     }
 }

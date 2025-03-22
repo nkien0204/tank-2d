@@ -49,6 +49,7 @@ fn spawn_tank(mut commands: Commands, image_assets: Res<ImageAssets>) {
                 },
             },
             Tank,
+            Name::new("Tank"),
         ))
         .with_child((
             GunBundle {
@@ -126,6 +127,7 @@ fn handle_tank_shell(
                 },
             },
             TankShell,
+            Name::new("Tank"),
         ));
     }
 }
