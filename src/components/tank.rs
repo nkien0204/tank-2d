@@ -18,6 +18,9 @@ pub struct TankShell;
 pub struct Opponent;
 
 #[derive(Component, Debug)]
+pub struct OpponentShell;
+
+#[derive(Component, Debug)]
 pub struct OpponentGun;
 
 #[derive(Bundle)]

@@ -1,6 +1,7 @@
 use super::asset_loader::ImageAssets;
 use super::game_state::GameState;
 use super::movement::{Acceleration, MovingObjectBundle};
+use super::{SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
 use crate::components::tank::{GunBundle, TankGun};
 use crate::components::{
     collider::Collider,
@@ -14,10 +15,6 @@ const STARTING_VELOCITY: Vec3 = Vec3::ZERO;
 const TANK_SPEED: f32 = 150.0;
 const TANK_ROTATION_SPEED: f32 = 2.0;
 const TANK_RADIUS: f32 = 10.0;
-
-const SHELL_SPEED: f32 = 500.0;
-const SHELL_FORWARD_SPAWN_SCALAR: f32 = 30.0;
-const SHELL_RADIUS: f32 = 5.0;
 
 pub struct TankPlugin;
 impl Plugin for TankPlugin {

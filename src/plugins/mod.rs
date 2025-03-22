@@ -13,3 +13,7 @@ pub mod tank;
 const DEFAULT_SCALE: Vec3 = Vec3::new(0.2, 0.2, 1.0);
 const VELOCITY_SCALAR: f32 = 100.0;
 const ACCELERATION_SCALAR: f32 = 1.0;
+
+const SHELL_SPEED: f32 = 500.0;
+const SHELL_FORWARD_SPAWN_SCALAR: f32 = 30.0;
+const SHELL_RADIUS: f32 = 5.0;

@@ -1,10 +1,11 @@
 use super::asset_loader::ImageAssets;
 use super::game_state::GameState;
 use super::movement::{Acceleration, MovingObjectBundle};
+use super::{SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
 use crate::components::tank::GunBundle;
 use crate::components::{
     collider::Collider,
-    tank::{Opponent, OpponentGun, Velocity},
+    tank::{Opponent, OpponentGun, OpponentShell, Velocity},
 };
 use bevy::prelude::*;
 use rand::Rng;
@@ -13,10 +14,16 @@ use std::ops::Range;
 const SPAWN_RANGE_X: Range<f32> = -500.0..500.0;
 const SPAWN_RANGE_Y: Range<f32> = -500.0..500.0;
 const SPAWN_TIME_SECONDS: f32 = 1.0;
+const FIRE_SHELL_TIME_SECONDS: f32 = 2.0;
 const OPPONENT_RADIUS: f32 = 10.0;
 
 #[derive(Resource, Debug)]
 pub struct SpawnTimer {
+    pub timer: Timer,
+}
+
+#[derive(Resource, Debug)]
+pub struct FireShellTimer {
     pub timer: Timer,
 }
 
@@ -26,7 +33,13 @@ impl Plugin for OpponentPlugin {
         app.insert_resource(SpawnTimer {
             timer: Timer::from_seconds(SPAWN_TIME_SECONDS, TimerMode::Repeating),
         })
-        .add_systems(Update, spawn_opponent.run_if(in_state(GameState::InGame)));
+        .insert_resource(FireShellTimer {
+            timer: Timer::from_seconds(FIRE_SHELL_TIME_SECONDS, TimerMode::Repeating),
+        })
+        .add_systems(
+            Update,
+            (spawn_opponent, handle_shell).run_if(in_state(GameState::InGame)),
+        );
     }
 }
 
@@ -107,6 +120,46 @@ fn spawn_opponent(
             },
             OpponentGun,
         ));
+}
+
+fn handle_shell(
+    mut commands: Commands,
+    query: Query<&Transform, With<Opponent>>,
+    image_assets: Res<ImageAssets>,
+    mut fire_shell_timer: ResMut<FireShellTimer>,
+    time: Res<Time>,
+) {
+    fire_shell_timer.timer.tick(time.delta());
+    if !fire_shell_timer.timer.just_finished() {
+        return;
+    }
+
+    for transform in query.iter() {
+        commands.spawn((
+            MovingObjectBundle {
+                velocity: Velocity {
+                    value: transform.up() * SHELL_SPEED,
+                },
+                collider: Collider {
+                    radius: SHELL_RADIUS,
+                    colliding_entities: Vec::new(),
+                },
+                acceleration: Acceleration { value: Vec3::ZERO },
+                transform: Transform {
+                    translation: transform.translation
+                        + transform.up() * SHELL_FORWARD_SPAWN_SCALAR,
+                    scale: super::DEFAULT_SCALE,
+                    rotation: transform.rotation,
+                    ..default()
+                },
+                model: Sprite {
+                    image: image_assets.shell.clone(),
+                    ..default()
+                },
+            },
+            OpponentShell,
+        ));
+    }
 }
 
 fn calculate_angle(u: Vec3, v: Vec3) -> f32 {
