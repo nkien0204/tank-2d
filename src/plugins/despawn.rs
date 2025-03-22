@@ -1,4 +1,4 @@
-use crate::components::tank::{Tank, TankGun};
+use crate::components::tank::Tank;
 use crate::plugins::game_state::GameState;
 use bevy::prelude::*;
 
@@ -10,10 +10,6 @@ impl Plugin for DespawnPlugin {
         app.add_systems(
             Update,
             (despawn_entities, check_tank_destroyed).run_if(in_state(GameState::InGame)),
-        )
-        .add_systems(
-            Update,
-            handle_game_over.run_if(in_state(GameState::GameOver)),
         );
     }
 }
@@ -34,11 +30,5 @@ fn check_tank_destroyed(
     if query.get_single().is_err() {
         // Tank was destroyed, game over
         next_state.set(GameState::GameOver);
-    }
-}
-
-fn handle_game_over(mut commands: Commands, query: Query<Entity, With<TankGun>>) {
-    for entity in query.iter() {
-        commands.entity(entity).despawn_recursive();
     }
 }

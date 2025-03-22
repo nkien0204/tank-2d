@@ -1,7 +1,7 @@
 use super::asset_loader::ImageAssets;
 use super::game_state::GameState;
 use super::movement::{Acceleration, MovingObjectBundle};
-use crate::components::tank::TankGun;
+use crate::components::tank::{GunBundle, TankGun};
 use crate::components::{
     collider::Collider,
     tank::{Tank, TankShell, Velocity},
@@ -30,51 +30,42 @@ impl Plugin for TankPlugin {
 }
 
 fn spawn_tank(mut commands: Commands, image_assets: Res<ImageAssets>) {
-    commands.spawn((
-        MovingObjectBundle {
-            velocity: Velocity {
-                value: STARTING_VELOCITY,
+    commands
+        .spawn((
+            MovingObjectBundle {
+                velocity: Velocity {
+                    value: STARTING_VELOCITY,
+                },
+                collider: Collider {
+                    radius: TANK_RADIUS,
+                    colliding_entities: Vec::new(),
+                },
+                acceleration: Acceleration { value: Vec3::ZERO },
+                transform: Transform {
+                    translation: STARTING_TRANSLATION,
+                    scale: super::DEFAULT_SCALE,
+                    ..default()
+                },
+                model: Sprite {
+                    image: image_assets.tank.clone(),
+                    ..default()
+                },
             },
-            collider: Collider {
-                radius: TANK_RADIUS,
-                colliding_entities: Vec::new(),
+            Tank,
+        ))
+        .with_child((
+            GunBundle {
+                transform: Transform {
+                    translation: STARTING_TRANSLATION + Vec3::new(0.0, 10.0, 1.0), // set z-index to 1.0
+                    ..default()
+                },
+                model: Sprite {
+                    image: image_assets.tank_gun.clone(),
+                    ..default()
+                },
             },
-            acceleration: Acceleration { value: Vec3::ZERO },
-            transform: Transform {
-                translation: STARTING_TRANSLATION,
-                scale: super::DEFAULT_SCALE,
-                ..default()
-            },
-            model: Sprite {
-                image: image_assets.tank.clone(),
-                ..default()
-            },
-        },
-        Tank,
-    ));
-
-    commands.spawn((
-        MovingObjectBundle {
-            velocity: Velocity {
-                value: STARTING_VELOCITY,
-            },
-            collider: Collider {
-                radius: TANK_RADIUS,
-                colliding_entities: Vec::new(),
-            },
-            acceleration: Acceleration { value: Vec3::ZERO },
-            transform: Transform {
-                translation: STARTING_TRANSLATION + Vec3::new(0.0, 2.0, 0.1), // set z-index to 1.0
-                scale: super::DEFAULT_SCALE,
-                ..default()
-            },
-            model: Sprite {
-                image: image_assets.tank_gun.clone(),
-                ..default()
-            },
-        },
-        TankGun,
-    ));
+            TankGun,
+        ));
 }
 
 fn handle_movement(

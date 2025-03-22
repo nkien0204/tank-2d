@@ -19,3 +19,9 @@ pub struct Opponent;
 
 #[derive(Component, Debug)]
 pub struct OpponentGun;
+
+#[derive(Bundle)]
+pub struct GunBundle {
+    pub transform: Transform,
+    pub model: Sprite,
+}

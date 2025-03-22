@@ -1,6 +1,7 @@
 use super::asset_loader::ImageAssets;
 use super::game_state::GameState;
 use super::movement::{Acceleration, MovingObjectBundle};
+use crate::components::tank::GunBundle;
 use crate::components::{
     collider::Collider,
     tank::{Opponent, OpponentGun, Velocity},
@@ -74,43 +75,38 @@ fn spawn_opponent(
     let mut gun_transform = transform.clone();
     gun_transform.translation += Vec3::new(0.0, 2.0, 0.1);
 
-    commands.spawn((
-        MovingObjectBundle {
-            velocity: Velocity { value: velocity },
-            acceleration: Acceleration {
-                value: acceleration,
+    commands
+        .spawn((
+            MovingObjectBundle {
+                velocity: Velocity { value: velocity },
+                acceleration: Acceleration {
+                    value: acceleration,
+                },
+                collider: Collider {
+                    radius: OPPONENT_RADIUS,
+                    colliding_entities: Vec::new(),
+                },
+                transform,
+                model: Sprite {
+                    image: image_assets.opponent.clone(),
+                    ..default()
+                },
             },
-            collider: Collider {
-                radius: OPPONENT_RADIUS,
-                colliding_entities: Vec::new(),
+            Opponent,
+        ))
+        .with_child((
+            GunBundle {
+                transform: Transform {
+                    translation: Vec3::new(0.0, 10.0, 1.0), // set z-index to 1.0
+                    ..default()
+                },
+                model: Sprite {
+                    image: image_assets.opponent_gun.clone(),
+                    ..default()
+                },
             },
-            transform,
-            model: Sprite {
-                image: image_assets.opponent.clone(),
-                ..default()
-            },
-        },
-        Opponent,
-    ));
-
-    // commands.spawn((
-    //     MovingObjectBundle {
-    //         velocity: Velocity { value: velocity },
-    //         acceleration: Acceleration {
-    //             value: acceleration,
-    //         },
-    //         collider: Collider {
-    //             radius: OPPONENT_RADIUS,
-    //             colliding_entities: Vec::new(),
-    //         },
-    //         transform: gun_transform,
-    //         model: Sprite {
-    //             image: image_assets.opponent_gun.clone(),
-    //             ..default()
-    //         },
-    //     },
-    //     OpponentGun,
-    // ));
+            OpponentGun,
+        ));
 }
 
 fn calculate_angle(u: Vec3, v: Vec3) -> f32 {
