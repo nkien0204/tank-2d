@@ -1,3 +1,4 @@
+use bevy::asset::LoadedFolder;
 use bevy::prelude::*;
 
 #[derive(Resource, Debug, Default)]
@@ -7,14 +8,25 @@ pub struct ImageAssets {
     pub shell: Handle<Image>,
     pub opponent: Handle<Image>,
     pub opponent_gun: Handle<Image>,
+    pub explosion: Handle<Image>,
 }
 
 pub struct AssetLoaderPlugin;
 impl Plugin for AssetLoaderPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ImageAssets>()
-            .add_systems(Startup, load_assets);
+            .add_systems(Startup, (load_assets, load_textures));
     }
+}
+
+#[derive(Resource, Default)]
+pub struct ExplosionEffectFolder(pub Handle<LoadedFolder>);
+
+fn load_textures(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let folder = ExplosionEffectFolder(asset_server.load_folder("tanks/PNG/Effects/Explosion"));
+
+    // load multiple, individual sprites from a folder
+    commands.insert_resource(folder);
 }
 
 fn load_assets(mut image_assets: ResMut<ImageAssets>, asset_server: Res<AssetServer>) {
@@ -23,4 +35,6 @@ fn load_assets(mut image_assets: ResMut<ImageAssets>, asset_server: Res<AssetSer
     image_assets.shell = asset_server.load("tanks/PNG/Effects/Heavy_Shell.png");
     image_assets.opponent = asset_server.load("tanks/PNG/Hulls_Color_D/Hull_01.png");
     image_assets.opponent_gun = asset_server.load("tanks/PNG/Weapon_Color_D/Gun_01.png");
+
+    // load effect assets here
 }
