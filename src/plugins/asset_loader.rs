@@ -1,3 +1,4 @@
+use bevy::asset::LoadedFolder;
 use bevy::prelude::*;
 
 #[derive(Resource, Debug, Default)]
@@ -13,8 +14,18 @@ pub struct AssetLoaderPlugin;
 impl Plugin for AssetLoaderPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ImageAssets>()
-            .add_systems(Startup, load_assets);
+            .add_systems(Startup, (load_assets, load_textures));
     }
+}
+
+#[derive(Resource, Default)]
+pub struct ExplosionEffectFolder(pub Handle<LoadedFolder>);
+
+fn load_textures(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let folder = ExplosionEffectFolder(asset_server.load_folder("tanks/PNG/Effects/Explosion"));
+
+    // load multiple, individual sprites from a folder
+    commands.insert_resource(folder);
 }
 
 fn load_assets(mut image_assets: ResMut<ImageAssets>, asset_server: Res<AssetServer>) {
