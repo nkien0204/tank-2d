@@ -8,7 +8,6 @@ pub struct ImageAssets {
     pub shell: Handle<Image>,
     pub opponent: Handle<Image>,
     pub opponent_gun: Handle<Image>,
-    pub explosion: Handle<Image>,
 }
 
 pub struct AssetLoaderPlugin;
@@ -35,6 +34,4 @@ fn load_assets(mut image_assets: ResMut<ImageAssets>, asset_server: Res<AssetSer
     image_assets.shell = asset_server.load("tanks/PNG/Effects/Heavy_Shell.png");
     image_assets.opponent = asset_server.load("tanks/PNG/Hulls_Color_D/Hull_01.png");
     image_assets.opponent_gun = asset_server.load("tanks/PNG/Weapon_Color_D/Gun_01.png");
-
-    // load effect assets here
 }
