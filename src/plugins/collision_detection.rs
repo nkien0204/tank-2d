@@ -11,7 +11,7 @@ use std::collections::HashMap;
 use super::game_state::GameState;
 
 #[derive(Event)]
-struct CollisionEvent {
+pub struct CollisionEvent {
     pub entity: (Entity, Name),
     pub colliding_entities: Vec<(Entity, Name)>,
 }
