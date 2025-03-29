@@ -17,3 +17,6 @@ const ACCELERATION_SCALAR: f32 = 1.0;
 const SHELL_SPEED: f32 = 500.0;
 const SHELL_FORWARD_SPAWN_SCALAR: f32 = 30.0;
 const SHELL_RADIUS: f32 = 5.0;
+
+const ALLIES_TAG_NAME: &str = "Allies";
+const ENEMIES_TAG_NAME: &str = "Enemies";

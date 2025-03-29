@@ -1,7 +1,7 @@
 use super::asset_loader::ImageAssets;
 use super::game_state::GameState;
 use super::movement::{Acceleration, MovingObjectBundle};
-use super::{SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
+use super::{ALLIES_TAG_NAME, SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
 use crate::components::tank::{GunBundle, TankGun};
 use crate::components::{
     collider::Collider,
@@ -35,7 +35,6 @@ fn spawn_tank(mut commands: Commands, image_assets: Res<ImageAssets>) {
                 },
                 collider: Collider {
                     radius: TANK_RADIUS,
-                    colliding_entities: Vec::new(),
                 },
                 acceleration: Acceleration { value: Vec3::ZERO },
                 transform: Transform {
@@ -49,7 +48,7 @@ fn spawn_tank(mut commands: Commands, image_assets: Res<ImageAssets>) {
                 },
             },
             Tank,
-            Name::new("Tank"),
+            Name::new(ALLIES_TAG_NAME),
         ))
         .with_child((
             GunBundle {
@@ -111,7 +110,6 @@ fn handle_tank_shell(
                 },
                 collider: Collider {
                     radius: SHELL_RADIUS,
-                    colliding_entities: Vec::new(),
                 },
                 acceleration: Acceleration { value: Vec3::ZERO },
                 transform: Transform {
@@ -127,7 +125,7 @@ fn handle_tank_shell(
                 },
             },
             TankShell,
-            Name::new("Tank"),
+            Name::new(ALLIES_TAG_NAME),
         ));
     }
 }

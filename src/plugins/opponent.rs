@@ -1,7 +1,7 @@
 use super::asset_loader::ImageAssets;
 use super::game_state::GameState;
 use super::movement::{Acceleration, MovingObjectBundle};
-use super::{SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
+use super::{ENEMIES_TAG_NAME, SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
 use crate::components::tank::GunBundle;
 use crate::components::{
     collider::Collider,
@@ -97,7 +97,6 @@ fn spawn_opponent(
                 },
                 collider: Collider {
                     radius: OPPONENT_RADIUS,
-                    colliding_entities: Vec::new(),
                 },
                 transform,
                 model: Sprite {
@@ -106,7 +105,7 @@ fn spawn_opponent(
                 },
             },
             Opponent,
-            Name::new("Opponent"),
+            Name::new(ENEMIES_TAG_NAME),
         ))
         .with_child((
             GunBundle {
@@ -143,7 +142,6 @@ fn handle_shell(
                 },
                 collider: Collider {
                     radius: SHELL_RADIUS,
-                    colliding_entities: Vec::new(),
                 },
                 acceleration: Acceleration { value: Vec3::ZERO },
                 transform: Transform {
@@ -159,7 +157,7 @@ fn handle_shell(
                 },
             },
             OpponentShell,
-            Name::new("Opponent"),
+            Name::new(ENEMIES_TAG_NAME),
         ));
     }
 }

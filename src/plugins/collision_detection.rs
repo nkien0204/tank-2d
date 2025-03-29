@@ -10,24 +10,36 @@ use std::collections::HashMap;
 
 use super::game_state::GameState;
 
+#[derive(Event)]
+struct CollisionEvent {
+    pub entity: (Entity, Name),
+    pub colliding_entities: Vec<(Entity, Name)>,
+}
+
 pub struct CollisionDetectionPlugin;
 impl Plugin for CollisionDetectionPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
             (
-                detect_collision,
-                handle_collisions::<Tank>,
-                handle_collisions::<Opponent>,
-                handle_collisions::<TankShell>,
+                (
+                    detect_collision,
+                    handle_collisions::<Tank>,
+                    handle_collisions::<Opponent>,
+                    handle_collisions::<TankShell>,
+                )
+                    .run_if(in_state(GameState::InGame)),
                 animate_explosion_sprite,
-            )
-                .run_if(in_state(GameState::InGame)),
-        );
+            ),
+        )
+        .add_event::<CollisionEvent>();
     }
 }
 
-fn detect_collision(mut query: Query<(Entity, &GlobalTransform, &mut Collider, &Name)>) {
+fn detect_collision(
+    mut collision_event_writer: EventWriter<CollisionEvent>,
+    query: Query<(Entity, &GlobalTransform, &Collider, &Name)>,
+) {
     let mut colliding_entity_map: HashMap<Entity, Vec<(Entity, Name)>> = HashMap::new();
 
     for (entity_a, transform_a, collider_a, _) in query.iter() {
@@ -50,33 +62,45 @@ fn detect_collision(mut query: Query<(Entity, &GlobalTransform, &mut Collider, &
         }
     }
 
-    for (entity, _, mut collider, _name) in query.iter_mut() {
-        collider.colliding_entities.clear();
-        if let Some(colliding_entities) = colliding_entity_map.get(&entity) {
-            collider
-                .colliding_entities
-                .extend(colliding_entities.clone());
-        }
+    for (entity, colliding_entities) in colliding_entity_map.iter() {
+        let Ok((_, _, _, name)) = query.get(entity.clone()) else {
+            continue;
+        };
+        collision_event_writer.send(CollisionEvent {
+            entity: (entity.clone(), name.clone()),
+            colliding_entities: colliding_entities.clone(),
+        });
     }
 }
 
 fn handle_collisions<T: Component>(
+    mut collision_event_reader: EventReader<CollisionEvent>,
     mut commands: Commands,
-    query: Query<(Entity, &Name, &Collider, &Transform), With<T>>,
+    query: Query<&Transform, With<T>>,
     loaded_folders: Res<Assets<LoadedFolder>>,
     explosion_effect: Res<ExplosionEffectFolder>,
     mut textures: ResMut<Assets<Image>>,
     mut layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    for (entity, name, collider, transform) in query.iter() {
-        for colliding_entity in collider.colliding_entities.iter() {
-            if query.get(colliding_entity.0).is_ok() {
+    for collision_event in collision_event_reader.read() {
+        for colliding_entity in collision_event.colliding_entities.iter() {
+            let Ok(transform) = query.get(collision_event.entity.0) else {
+                continue;
+            };
+
+            // Don't despawn itself
+            if collision_event.entity.0 == colliding_entity.0 {
                 continue;
             }
-            if name.as_str() == colliding_entity.1.as_str() {
+
+            // Don't despawn the ally entity
+            if collision_event.entity.1.as_str() == colliding_entity.1.as_str() {
                 continue;
             }
-            commands.entity(entity).despawn_recursive();
+
+            commands
+                .entity(collision_event.entity.0)
+                .despawn_recursive();
 
             create_explosion_effect(
                 &mut commands,
