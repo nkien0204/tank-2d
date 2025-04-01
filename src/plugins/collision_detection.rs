@@ -2,7 +2,7 @@ use super::asset_loader::ExplosionEffectFolder;
 use crate::components::{
     animation::{AnimationIndices, AnimationTimer},
     collider::{Collider, Explosion},
-    tank::{Opponent, Tank, TankShell},
+    tank::{Enemy, Tank, TankShell},
 };
 use bevy::asset::LoadedFolder;
 use bevy::prelude::*;
@@ -25,7 +25,7 @@ impl Plugin for CollisionDetectionPlugin {
                 (
                     detect_collision,
                     handle_collisions::<Tank>,
-                    handle_collisions::<Opponent>,
+                    handle_collisions::<Enemy>,
                     handle_collisions::<TankShell>,
                 )
                     .run_if(in_state(GameState::InGame)),

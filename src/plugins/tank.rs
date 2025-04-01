@@ -2,7 +2,7 @@ use super::asset_loader::ImageAssets;
 use super::game_state::GameState;
 use super::movement::{Acceleration, MovingObjectBundle};
 use super::{ALLIES_TAG_NAME, SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
-use crate::components::tank::{GunBundle, TankGun};
+use crate::components::tank::{GunBundle, LeftTrack, RightTrack, TankGun, TrackBundle};
 use crate::components::{
     collider::Collider,
     tank::{Tank, TankShell, Velocity},
@@ -50,23 +50,53 @@ fn spawn_tank(mut commands: Commands, image_assets: Res<ImageAssets>) {
             Tank,
             Name::new(ALLIES_TAG_NAME),
         ))
-        .with_child((
-            GunBundle {
-                transform: Transform {
-                    translation: STARTING_TRANSLATION + Vec3::new(0.0, 10.0, 1.0), // set z-index to 1.0
-                    ..default()
+        .with_children(|parent| {
+            parent.spawn((
+                GunBundle {
+                    transform: Transform {
+                        translation: STARTING_TRANSLATION + Vec3::new(0.0, 10.0, 1.0),
+                        ..default()
+                    },
+                    model: Sprite {
+                        image: image_assets.tank_gun.clone(),
+                        ..default()
+                    },
                 },
-                model: Sprite {
-                    image: image_assets.tank_gun.clone(),
-                    ..default()
+                TankGun,
+            ));
+
+            parent.spawn((
+                TrackBundle {
+                    transform: Transform {
+                        translation: STARTING_TRANSLATION + Vec3::new(-70.0, 0.0, -1.0),
+                        ..default()
+                    },
+                    model: Sprite {
+                        image: image_assets.ally_track.clone(),
+                        ..default()
+                    },
                 },
-            },
-            TankGun,
-        ));
+                LeftTrack,
+            ));
+
+            parent.spawn((
+                TrackBundle {
+                    transform: Transform {
+                        translation: STARTING_TRANSLATION + Vec3::new(70.0, 0.0, -1.0),
+                        ..default()
+                    },
+                    model: Sprite {
+                        image: image_assets.ally_track.clone(),
+                        ..default()
+                    },
+                },
+                RightTrack,
+            ));
+        });
 }
 
 fn handle_movement(
-    mut query: Query<(&mut Transform, &mut Velocity), Or<(With<Tank>, With<TankGun>)>>,
+    mut query: Query<(&mut Transform, &mut Velocity), With<Tank>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {

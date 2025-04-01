@@ -5,7 +5,7 @@ use super::{ENEMIES_TAG_NAME, SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SP
 use crate::components::tank::GunBundle;
 use crate::components::{
     collider::Collider,
-    tank::{Opponent, OpponentGun, OpponentShell, Velocity},
+    tank::{Enemy, EnemyGun, EnemyShell, LeftTrack, RightTrack, TrackBundle, Velocity},
 };
 use bevy::prelude::*;
 use rand::Rng;
@@ -27,8 +27,8 @@ pub struct FireShellTimer {
     pub timer: Timer,
 }
 
-pub struct OpponentPlugin;
-impl Plugin for OpponentPlugin {
+pub struct EnemyPlugin;
+impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(SpawnTimer {
             timer: Timer::from_seconds(SPAWN_TIME_SECONDS, TimerMode::Repeating),
@@ -38,12 +38,12 @@ impl Plugin for OpponentPlugin {
         })
         .add_systems(
             Update,
-            (spawn_opponent, handle_shell).run_if(in_state(GameState::InGame)),
+            (spawn_enemy, handle_shell).run_if(in_state(GameState::InGame)),
         );
     }
 }
 
-fn spawn_opponent(
+fn spawn_enemy(
     mut commands: Commands,
     mut spawn_timer: ResMut<SpawnTimer>,
     time: Res<Time>,
@@ -100,31 +100,74 @@ fn spawn_opponent(
                 },
                 transform,
                 model: Sprite {
-                    image: image_assets.opponent.clone(),
+                    image: image_assets.enemy.clone(),
                     ..default()
                 },
             },
-            Opponent,
+            Enemy,
             Name::new(ENEMIES_TAG_NAME),
         ))
-        .with_child((
-            GunBundle {
-                transform: Transform {
-                    translation: Vec3::new(0.0, 10.0, 1.0), // set z-index to 1.0
-                    ..default()
+        .with_children(|parent| {
+            parent.spawn((
+                GunBundle {
+                    transform: Transform {
+                        translation: Vec3::new(0.0, 10.0, 1.0),
+                        ..default()
+                    },
+                    model: Sprite {
+                        image: image_assets.enemy_gun.clone(),
+                        ..default()
+                    },
                 },
-                model: Sprite {
-                    image: image_assets.opponent_gun.clone(),
-                    ..default()
+                EnemyGun,
+            ));
+
+            parent.spawn((
+                TrackBundle {
+                    transform: Transform {
+                        translation: Vec3::new(-70.0, 0.0, -1.0),
+                        ..default()
+                    },
+                    model: Sprite {
+                        image: image_assets.enemy_track.clone(),
+                        ..default()
+                    },
                 },
-            },
-            OpponentGun,
-        ));
+                LeftTrack,
+            ));
+
+            parent.spawn((
+                TrackBundle {
+                    transform: Transform {
+                        translation: Vec3::new(70.0, 0.0, -1.0),
+                        ..default()
+                    },
+                    model: Sprite {
+                        image: image_assets.enemy_track.clone(),
+                        ..default()
+                    },
+                },
+                RightTrack,
+            ));
+        });
+    // .with_child((
+    //     GunBundle {
+    //         transform: Transform {
+    //             translation: Vec3::new(0.0, 10.0, 1.0), // set z-index to 1.0
+    //             ..default()
+    //         },
+    //         model: Sprite {
+    //             image: image_assets.enemy_gun.clone(),
+    //             ..default()
+    //         },
+    //     },
+    //     OpponentGun,
+    // ));
 }
 
 fn handle_shell(
     mut commands: Commands,
-    query: Query<&Transform, With<Opponent>>,
+    query: Query<&Transform, With<Enemy>>,
     image_assets: Res<ImageAssets>,
     mut fire_shell_timer: ResMut<FireShellTimer>,
     time: Res<Time>,
@@ -156,7 +199,7 @@ fn handle_shell(
                     ..default()
                 },
             },
-            OpponentShell,
+            EnemyShell,
             Name::new(ENEMIES_TAG_NAME),
         ));
     }
