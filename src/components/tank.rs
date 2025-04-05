@@ -15,16 +15,28 @@ pub struct TankGun;
 pub struct TankShell;
 
 #[derive(Component, Debug)]
-pub struct Opponent;
+pub struct Enemy;
 
 #[derive(Component, Debug)]
-pub struct OpponentShell;
+pub struct EnemyShell;
 
 #[derive(Component, Debug)]
-pub struct OpponentGun;
+pub struct EnemyGun;
 
 #[derive(Bundle)]
 pub struct GunBundle {
+    pub transform: Transform,
+    pub model: Sprite,
+}
+
+#[derive(Component, Debug)]
+pub struct LeftTrack;
+
+#[derive(Component, Debug)]
+pub struct RightTrack;
+
+#[derive(Bundle)]
+pub struct TrackBundle {
     pub transform: Transform,
     pub model: Sprite,
 }

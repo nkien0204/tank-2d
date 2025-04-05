@@ -1,3 +1,4 @@
+use super::collision_detection::CollisionEvent;
 use crate::components::tank::Tank;
 use crate::plugins::game_state::GameState;
 use bevy::prelude::*;
@@ -24,11 +25,14 @@ fn despawn_entities(mut commands: Commands, query: Query<(Entity, &GlobalTransfo
 }
 
 fn check_tank_destroyed(
+    mut collision_event_reader: EventReader<CollisionEvent>,
     query: Query<Entity, With<Tank>>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    if query.get_single().is_err() {
-        // Tank was destroyed, game over
-        next_state.set(GameState::GameOver);
+    for _ in collision_event_reader.read() {
+        if query.get_single().is_err() {
+            // Tank was destroyed, game over
+            next_state.set(GameState::GameOver);
+        }
     }
 }
