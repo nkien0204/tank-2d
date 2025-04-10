@@ -9,9 +9,6 @@ pub struct Velocity {
 pub struct Tank;
 
 #[derive(Component, Debug)]
-pub struct TankGun;
-
-#[derive(Component, Debug)]
 pub struct TankShell;
 
 #[derive(Component, Debug)]
@@ -20,20 +17,11 @@ pub struct Enemy;
 #[derive(Component, Debug)]
 pub struct EnemyShell;
 
-#[derive(Component, Debug)]
-pub struct EnemyGun;
-
 #[derive(Bundle)]
 pub struct GunBundle {
     pub transform: Transform,
     pub model: Sprite,
 }
-
-#[derive(Component, Debug)]
-pub struct LeftTrack;
-
-#[derive(Component, Debug)]
-pub struct RightTrack;
 
 #[derive(Bundle)]
 pub struct TrackBundle {

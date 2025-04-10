@@ -2,10 +2,9 @@ use super::asset_loader::ImageAssets;
 use super::game_state::GameState;
 use super::movement::{Acceleration, MovingObjectBundle};
 use super::{ENEMIES_TAG_NAME, SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
-use crate::components::tank::GunBundle;
 use crate::components::{
     collider::Collider,
-    tank::{Enemy, EnemyGun, EnemyShell, LeftTrack, RightTrack, TrackBundle, Velocity},
+    tank::{Enemy, EnemyShell, Velocity},
 };
 use bevy::prelude::*;
 use rand::Rng;
@@ -15,7 +14,7 @@ const SPAWN_RANGE_X: Range<f32> = -500.0..500.0;
 const SPAWN_RANGE_Y: Range<f32> = -500.0..500.0;
 const SPAWN_TIME_SECONDS: f32 = 1.0;
 const FIRE_SHELL_TIME_SECONDS: f32 = 2.0;
-const OPPONENT_RADIUS: f32 = 10.0;
+const OPPONENT_RADIUS: f32 = 50.0;
 
 #[derive(Resource, Debug)]
 pub struct SpawnTimer {
@@ -74,7 +73,11 @@ fn spawn_enemy(
     );
     let mut transform = Transform {
         translation,
-        scale: super::DEFAULT_SCALE,
+        scale: Vec3::new(
+            super::DEFAULT_SCALE,
+            super::DEFAULT_SCALE * -1.0,
+            super::DEFAULT_SCALE,
+        ),
         ..default()
     };
 
@@ -85,84 +88,24 @@ fn spawn_enemy(
         transform.rotate_z(-rotate_angle);
     }
 
-    let mut gun_transform = transform.clone();
-    gun_transform.translation += Vec3::new(0.0, 2.0, 0.1);
-
-    commands
-        .spawn((
-            MovingObjectBundle {
-                velocity: Velocity { value: velocity },
-                acceleration: Acceleration {
-                    value: acceleration,
-                },
-                collider: Collider {
-                    radius: OPPONENT_RADIUS,
-                },
-                transform,
-                model: Sprite {
-                    image: image_assets.enemy.clone(),
-                    ..default()
-                },
+    commands.spawn((
+        MovingObjectBundle {
+            velocity: Velocity { value: velocity },
+            acceleration: Acceleration {
+                value: acceleration,
             },
-            Enemy,
-            Name::new(ENEMIES_TAG_NAME),
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                GunBundle {
-                    transform: Transform {
-                        translation: Vec3::new(0.0, 10.0, 1.0),
-                        ..default()
-                    },
-                    model: Sprite {
-                        image: image_assets.enemy_gun.clone(),
-                        ..default()
-                    },
-                },
-                EnemyGun,
-            ));
-
-            parent.spawn((
-                TrackBundle {
-                    transform: Transform {
-                        translation: Vec3::new(-70.0, 0.0, -1.0),
-                        ..default()
-                    },
-                    model: Sprite {
-                        image: image_assets.enemy_track.clone(),
-                        ..default()
-                    },
-                },
-                LeftTrack,
-            ));
-
-            parent.spawn((
-                TrackBundle {
-                    transform: Transform {
-                        translation: Vec3::new(70.0, 0.0, -1.0),
-                        ..default()
-                    },
-                    model: Sprite {
-                        image: image_assets.enemy_track.clone(),
-                        ..default()
-                    },
-                },
-                RightTrack,
-            ));
-        });
-    // .with_child((
-    //     GunBundle {
-    //         transform: Transform {
-    //             translation: Vec3::new(0.0, 10.0, 1.0), // set z-index to 1.0
-    //             ..default()
-    //         },
-    //         model: Sprite {
-    //             image: image_assets.enemy_gun.clone(),
-    //             ..default()
-    //         },
-    //     },
-    //     OpponentGun,
-    // ));
+            collider: Collider {
+                radius: OPPONENT_RADIUS * super::DEFAULT_SCALE,
+            },
+            transform,
+            model: Sprite {
+                image: image_assets.enemy.clone(),
+                ..default()
+            },
+        },
+        Enemy,
+        Name::new(ENEMIES_TAG_NAME),
+    ));
 }
 
 fn handle_shell(
@@ -184,13 +127,17 @@ fn handle_shell(
                     value: transform.up() * SHELL_SPEED,
                 },
                 collider: Collider {
-                    radius: SHELL_RADIUS,
+                    radius: SHELL_RADIUS * super::DEFAULT_SCALE,
                 },
                 acceleration: Acceleration { value: Vec3::ZERO },
                 transform: Transform {
                     translation: transform.translation
                         + transform.up() * SHELL_FORWARD_SPAWN_SCALAR,
-                    scale: super::DEFAULT_SCALE,
+                    scale: Vec3::new(
+                        super::DEFAULT_SCALE,
+                        super::DEFAULT_SCALE,
+                        super::DEFAULT_SCALE,
+                    ),
                     rotation: transform.rotation,
                     ..default()
                 },

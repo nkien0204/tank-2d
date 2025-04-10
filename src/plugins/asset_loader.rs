@@ -4,13 +4,8 @@ use bevy::prelude::*;
 #[derive(Resource, Debug, Default)]
 pub struct ImageAssets {
     pub tank: Handle<Image>,
-    pub tank_gun: Handle<Image>,
-    pub ally_track: Handle<Image>,
     pub shell: Handle<Image>,
     pub enemy: Handle<Image>,
-    pub enemy_gun: Handle<Image>,
-    pub enemy_track: Handle<Image>,
-    pub tire_track: Handle<Image>,
 }
 
 pub struct AssetLoaderPlugin;
@@ -25,19 +20,15 @@ impl Plugin for AssetLoaderPlugin {
 pub struct ExplosionEffectFolder(pub Handle<LoadedFolder>);
 
 fn load_textures(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let folder = ExplosionEffectFolder(asset_server.load_folder("tanks/PNG/Effects/Explosion"));
+    let folder =
+        ExplosionEffectFolder(asset_server.load_folder("tank_assets/PNG/Retina/explosion"));
 
     // load multiple, individual sprites from a folder
     commands.insert_resource(folder);
 }
 
 fn load_assets(mut image_assets: ResMut<ImageAssets>, asset_server: Res<AssetServer>) {
-    image_assets.tank = asset_server.load("tanks/PNG/Hulls_Color_A/Hull_01.png");
-    image_assets.tank_gun = asset_server.load("tanks/PNG/Weapon_Color_A/Gun_01.png");
-    image_assets.shell = asset_server.load("tanks/PNG/Effects/Heavy_Shell.png");
-    image_assets.enemy = asset_server.load("tanks/PNG/Hulls_Color_D/Hull_01.png");
-    image_assets.enemy_gun = asset_server.load("tanks/PNG/Weapon_Color_D/Gun_01.png");
-    image_assets.ally_track = asset_server.load("tanks/PNG/Tracks/Track_1_A.png");
-    image_assets.enemy_track = asset_server.load("tanks/PNG/Tracks/Track_2_A.png");
-    image_assets.tire_track = asset_server.load("tanks/PNG/Effects/Tire_Track_02.png");
+    image_assets.tank = asset_server.load("tank_assets/PNG/Retina/tank_blue.png");
+    image_assets.shell = asset_server.load("tank_assets/PNG/Retina/bulletBlue1.png");
+    image_assets.enemy = asset_server.load("tank_assets/PNG/Retina/tank_red.png");
 }

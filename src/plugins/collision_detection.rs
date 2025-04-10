@@ -163,7 +163,7 @@ fn create_explosion_effect(
     let (texture_atlas_layout, _texture_atlas_sources, texture) = builder.build().unwrap();
     let animated_texture = textures.add(texture);
     let layout = layouts.add(texture_atlas_layout);
-    let animation_indices = AnimationIndices { first: 0, last: 7 };
+    let animation_indices = AnimationIndices { first: 0, last: 4 };
     commands.spawn((
         Sprite::from_atlas_image(
             animated_texture,
@@ -174,7 +174,11 @@ fn create_explosion_effect(
         ),
         Transform {
             translation: entity_transform.translation,
-            scale: super::DEFAULT_SCALE,
+            scale: Vec3::new(
+                super::DEFAULT_SCALE,
+                super::DEFAULT_SCALE,
+                super::DEFAULT_SCALE,
+            ),
             ..default()
         },
         animation_indices,

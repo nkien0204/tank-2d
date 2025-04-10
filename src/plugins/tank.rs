@@ -2,7 +2,6 @@ use super::asset_loader::ImageAssets;
 use super::game_state::GameState;
 use super::movement::{Acceleration, MovingObjectBundle};
 use super::{ALLIES_TAG_NAME, SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
-use crate::components::tank::{GunBundle, LeftTrack, RightTrack, TankGun, TrackBundle};
 use crate::components::{
     collider::Collider,
     tank::{Tank, TankShell, Velocity},
@@ -14,7 +13,7 @@ const STARTING_VELOCITY: Vec3 = Vec3::ZERO;
 
 const TANK_SPEED: f32 = 150.0;
 const TANK_ROTATION_SPEED: f32 = 2.0;
-const TANK_RADIUS: f32 = 10.0;
+const TANK_RADIUS: f32 = 50.0;
 
 pub struct TankPlugin;
 impl Plugin for TankPlugin {
@@ -27,72 +26,32 @@ impl Plugin for TankPlugin {
 }
 
 fn spawn_tank(mut commands: Commands, image_assets: Res<ImageAssets>) {
-    commands
-        .spawn((
-            MovingObjectBundle {
-                velocity: Velocity {
-                    value: STARTING_VELOCITY,
-                },
-                collider: Collider {
-                    radius: TANK_RADIUS,
-                },
-                acceleration: Acceleration { value: Vec3::ZERO },
-                transform: Transform {
-                    translation: STARTING_TRANSLATION,
-                    scale: super::DEFAULT_SCALE,
-                    ..default()
-                },
-                model: Sprite {
-                    image: image_assets.tank.clone(),
-                    ..default()
-                },
+    commands.spawn((
+        MovingObjectBundle {
+            velocity: Velocity {
+                value: STARTING_VELOCITY,
             },
-            Tank,
-            Name::new(ALLIES_TAG_NAME),
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                GunBundle {
-                    transform: Transform {
-                        translation: STARTING_TRANSLATION + Vec3::new(0.0, 10.0, 1.0),
-                        ..default()
-                    },
-                    model: Sprite {
-                        image: image_assets.tank_gun.clone(),
-                        ..default()
-                    },
-                },
-                TankGun,
-            ));
-
-            parent.spawn((
-                TrackBundle {
-                    transform: Transform {
-                        translation: STARTING_TRANSLATION + Vec3::new(-70.0, 0.0, -1.0),
-                        ..default()
-                    },
-                    model: Sprite {
-                        image: image_assets.ally_track.clone(),
-                        ..default()
-                    },
-                },
-                LeftTrack,
-            ));
-
-            parent.spawn((
-                TrackBundle {
-                    transform: Transform {
-                        translation: STARTING_TRANSLATION + Vec3::new(70.0, 0.0, -1.0),
-                        ..default()
-                    },
-                    model: Sprite {
-                        image: image_assets.ally_track.clone(),
-                        ..default()
-                    },
-                },
-                RightTrack,
-            ));
-        });
+            collider: Collider {
+                radius: TANK_RADIUS * super::DEFAULT_SCALE,
+            },
+            acceleration: Acceleration { value: Vec3::ZERO },
+            transform: Transform {
+                translation: STARTING_TRANSLATION,
+                scale: Vec3::new(
+                    super::DEFAULT_SCALE,
+                    super::DEFAULT_SCALE * -1.0,
+                    super::DEFAULT_SCALE,
+                ),
+                ..default()
+            },
+            model: Sprite {
+                image: image_assets.tank.clone(),
+                ..default()
+            },
+        },
+        Tank,
+        Name::new(ALLIES_TAG_NAME),
+    ));
 }
 
 fn handle_movement(
@@ -139,13 +98,17 @@ fn handle_tank_shell(
                     value: transform.up() * SHELL_SPEED,
                 },
                 collider: Collider {
-                    radius: SHELL_RADIUS,
+                    radius: SHELL_RADIUS * super::DEFAULT_SCALE,
                 },
                 acceleration: Acceleration { value: Vec3::ZERO },
                 transform: Transform {
                     translation: transform.translation
                         + transform.up() * SHELL_FORWARD_SPAWN_SCALAR,
-                    scale: super::DEFAULT_SCALE,
+                    scale: Vec3::new(
+                        super::DEFAULT_SCALE,
+                        super::DEFAULT_SCALE,
+                        super::DEFAULT_SCALE,
+                    ),
                     rotation: transform.rotation,
                     ..default()
                 },
