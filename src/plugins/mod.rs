@@ -5,8 +5,11 @@ pub mod debug;
 pub mod despawn;
 pub mod enemy;
 pub mod game_state;
+pub mod map;
 pub mod movement;
 pub mod tank;
+
+const BACKGROUND_Z_INDEX: f32 = -10.0;
 
 const DEFAULT_SCALE: f32 = 0.5;
 const VELOCITY_SCALAR: f32 = 100.0;

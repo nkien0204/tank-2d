@@ -1,12 +1,23 @@
 use bevy::prelude::*;
+use bevy_ecs_tilemap::prelude::*;
 
 mod components;
 mod plugins;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin{
+            primary_window: Some(Window {
+                title: String::from(
+                    "Basic Example - Press Space to change Texture and H to show/hide tilemap.",
+                ),
+                ..Default::default()
+            }),
+            ..default()
+        }).set(ImagePlugin::default_nearest()))
+        .add_plugins(TilemapPlugin)
         .add_plugins(plugins::camera::CameraPlugin)
+        .add_plugins(plugins::map::MapPlugin)
         .add_plugins(plugins::tank::TankPlugin)
         .add_plugins(plugins::enemy::EnemyPlugin)
         .add_plugins(plugins::movement::MovementPlugin)

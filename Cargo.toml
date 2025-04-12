@@ -13,4 +13,5 @@ opt-level = 3
 
 [dependencies]
 bevy = { version = "0.15.3", features = ["png"] }
+bevy_ecs_tilemap = "0.15.0"
 rand = "0.9.0"
