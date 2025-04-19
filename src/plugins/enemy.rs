@@ -2,6 +2,7 @@ use super::asset_loader::ImageAssets;
 use super::game_state::GameState;
 use super::movement::{Acceleration, MovingObjectBundle};
 use super::{ENEMIES_TAG_NAME, SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
+use crate::components::tank::TankObjectType;
 use crate::components::{
     collider::Collider,
     tank::{Enemy, EnemyShell, Velocity},
@@ -105,6 +106,7 @@ fn spawn_enemy(
         },
         Enemy,
         Name::new(ENEMIES_TAG_NAME),
+        TankObjectType::Tank,
     ));
 }
 
@@ -148,6 +150,7 @@ fn handle_shell(
             },
             EnemyShell,
             Name::new(ENEMIES_TAG_NAME),
+            TankObjectType::Shell,
         ));
     }
 }

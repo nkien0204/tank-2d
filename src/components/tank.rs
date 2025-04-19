@@ -28,3 +28,9 @@ pub struct TrackBundle {
     pub transform: Transform,
     pub model: Sprite,
 }
+
+#[derive(Component, Debug)]
+pub enum TankObjectType {
+    Tank,
+    Shell,
+}

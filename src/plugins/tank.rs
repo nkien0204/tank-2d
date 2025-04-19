@@ -4,7 +4,7 @@ use super::movement::{Acceleration, MovingObjectBundle};
 use super::{ALLIES_TAG_NAME, SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
 use crate::components::{
     collider::Collider,
-    tank::{Tank, TankShell, Velocity},
+    tank::{Tank, TankObjectType, TankShell, Velocity},
 };
 use bevy::prelude::*;
 
@@ -51,6 +51,7 @@ fn spawn_tank(mut commands: Commands, image_assets: Res<ImageAssets>) {
         },
         Tank,
         Name::new(ALLIES_TAG_NAME),
+        TankObjectType::Tank,
     ));
 }
 
@@ -119,6 +120,7 @@ fn handle_tank_shell(
             },
             TankShell,
             Name::new(ALLIES_TAG_NAME),
+            TankObjectType::Shell,
         ));
     }
 }
