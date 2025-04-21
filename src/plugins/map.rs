@@ -1,4 +1,4 @@
-use super::{BACKGROUND_Z_INDEX, DEFAULT_SCALE, asset_loader::ImageAssets};
+use super::{BACKGROUND_Z_INDEX, DEFAULT_SCALE, TANK_OVERLAP_Z_INDEX, asset_loader::ImageAssets};
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 
@@ -21,7 +21,8 @@ const MAP_BOUNDS: (f32, f32, f32, f32) = (
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum TileType {
-    BarricadeMetal,
+    TreeBrownLarge,
+    TreeGreenLarge,
 }
 
 pub enum OutOfBoundTypes {
@@ -59,43 +60,79 @@ fn spawn_map(mut commands: Commands, image_assets: Res<ImageAssets>) {
         },
     });
 
-    // let tilemap_entity = commands.spawn_empty().id();
-    // let mut tile_storage = TileStorage::empty(TILEMAP_SIZE);
+    let tilemap_entity = commands.spawn_empty().id();
+    let mut tile_storage = TileStorage::empty(TILEMAP_SIZE);
 
-    // let image_handles = vec![image_assets.barricadeMetal.clone()];
-    // let texture_vec = TilemapTexture::Vector(image_handles);
+    let image_handles = vec![
+        image_assets.tree_brown_large.clone(),
+        image_assets.tree_green_large.clone(),
+    ];
+    let texture_vec = TilemapTexture::Vector(image_handles);
 
-    // let tile_positions: Vec<TilePos> = vec![TilePos { x: 0, y: 0 }];
-    // fill_texture_to_map(
-    //     &mut commands,
-    //     tilemap_entity,
-    //     &mut tile_storage,
-    //     tile_positions,
-    //     TileType::BarricadeMetal,
-    // );
+    let tile_positions: Vec<TilePos> = vec![
+        TilePos { x: 0, y: 0 },
+        TilePos { x: 1, y: 2 },
+        TilePos { x: 2, y: 10 },
+        TilePos { x: 3, y: 5 },
+        TilePos { x: 4, y: 8 },
+        TilePos { x: 14, y: 5 },
+        TilePos { x: 13, y: 2 },
+        TilePos { x: 10, y: 11 },
+        TilePos { x: 11, y: 11 },
+        TilePos { x: 18, y: 10 },
+        TilePos { x: 18, y: 10 },
+    ];
+    fill_texture_to_map(
+        &mut commands,
+        tilemap_entity,
+        &mut tile_storage,
+        tile_positions,
+        TileType::TreeBrownLarge,
+    );
 
-    // let tile_size = TilemapTileSize { x: 128.0, y: 128.0 };
-    // let grid_size = tile_size.into();
-    // let map_type = TilemapType::default();
+    let tile_positions: Vec<TilePos> = vec![
+        TilePos { x: 10, y: 0 },
+        TilePos { x: 12, y: 2 },
+        TilePos { x: 2, y: 11 },
+        TilePos { x: 3, y: 3 },
+        TilePos { x: 5, y: 8 },
+        TilePos { x: 12, y: 5 },
+        TilePos { x: 13, y: 3 },
+        TilePos { x: 10, y: 10 },
+        TilePos { x: 11, y: 8 },
+        TilePos { x: 19, y: 10 },
+        TilePos { x: 18, y: 9 },
+    ];
+    fill_texture_to_map(
+        &mut commands,
+        tilemap_entity,
+        &mut tile_storage,
+        tile_positions,
+        TileType::TreeGreenLarge,
+    );
 
-    // let center_x = (TILEMAP_SIZE.x as f32 * -1.0 / 2.0 + 0.5) * tile_size.x * DEFAULT_SCALE;
-    // let center_y = (TILEMAP_SIZE.y as f32 * -1.0 / 2.0 + 0.5) * tile_size.y * DEFAULT_SCALE;
+    let tile_size = TilemapTileSize { x: 128.0, y: 128.0 };
+    let grid_size = tile_size.into();
+    let map_type = TilemapType::default();
 
-    // commands.entity(tilemap_entity).insert(TilemapBundle {
-    //     grid_size,
-    //     map_type,
-    //     size: TILEMAP_SIZE,
-    //     storage: tile_storage,
-    //     texture: texture_vec,
-    //     tile_size,
+    let center_x = (TILEMAP_SIZE.x as f32 * -1.0 / 2.0 + 0.5) * tile_size.x * DEFAULT_SCALE;
+    let center_y = (TILEMAP_SIZE.y as f32 * -1.0 / 2.0 + 0.5) * tile_size.y * DEFAULT_SCALE;
 
-    //     transform: Transform {
-    //         translation: Vec3::new(center_x, center_y, BACKGROUND_Z_INDEX),
-    //         scale: Vec3::new(DEFAULT_SCALE, DEFAULT_SCALE, DEFAULT_SCALE),
-    //         ..Default::default()
-    //     },
-    //     ..Default::default()
-    // });
+    commands.entity(tilemap_entity).insert(TilemapBundle {
+        grid_size,
+        map_type,
+        size: TILEMAP_SIZE,
+        storage: tile_storage,
+        texture: texture_vec,
+        tile_size,
+
+        transform: Transform {
+            translation: Vec3::new(center_x, center_y, TANK_OVERLAP_Z_INDEX),
+            scale: Vec3::new(DEFAULT_SCALE, DEFAULT_SCALE, DEFAULT_SCALE),
+            ..Default::default()
+        },
+        ..Default::default()
+    });
 }
 
 fn fill_texture_to_map(
