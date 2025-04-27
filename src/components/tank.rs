@@ -34,3 +34,15 @@ pub enum TankObjectType {
     Tank,
     Shell,
 }
+
+#[derive(Component, Debug)]
+pub struct EnemyDirectionChangeTimer {
+    pub moving_timer: Timer,
+    pub rotating_timer: Timer,
+}
+
+#[derive(Component, Debug)]
+pub enum EnemyDirectionChangeState {
+    Rotating,
+    Moving,
+}

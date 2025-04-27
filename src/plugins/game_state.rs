@@ -5,6 +5,7 @@ pub enum GameState {
     Pause,
     InGame,
     GameOver,
+    GameVictory,
 }
 
 pub struct GameStatePlugin;
