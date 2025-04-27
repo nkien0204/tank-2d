@@ -1,9 +1,8 @@
 use super::collision_detection::CollisionEvent;
-use crate::components::tank::Tank;
+use super::map::{OutOfBoundTypes, check_out_of_bounds};
+use crate::components::tank::{Enemy, Tank};
 use crate::plugins::game_state::GameState;
 use bevy::prelude::*;
-
-const DESPAWN_DISTANCE: f32 = 1000.0;
 
 pub struct DespawnPlugin;
 impl Plugin for DespawnPlugin {
@@ -15,24 +14,55 @@ impl Plugin for DespawnPlugin {
     }
 }
 
-fn despawn_entities(mut commands: Commands, query: Query<(Entity, &GlobalTransform)>) {
-    for (entity, transform) in query.iter() {
-        let distance = transform.translation().distance(Vec3::ZERO);
-        if distance > DESPAWN_DISTANCE {
-            commands.entity(entity).despawn_recursive();
-        }
+fn despawn_entities(
+    mut commands: Commands,
+    sprites: Res<Assets<Image>>,
+    query: Query<(Entity, &GlobalTransform, &Sprite)>,
+) {
+    for (entity, transform, sprite) in query.iter() {
+        let Some(image) = sprites.get(sprite.image.id()) else {
+            continue;
+        };
+        let translation = transform.translation();
+        match check_out_of_bounds(translation, image.size(), 0.0) {
+            OutOfBoundTypes::None => {}
+            _ => {
+                commands.entity(entity).despawn_recursive();
+            }
+        };
     }
 }
 
 fn check_tank_destroyed(
+    mut commands: Commands,
     mut collision_event_reader: EventReader<CollisionEvent>,
     query: Query<Entity, With<Tank>>,
+    enemies_query: Query<Entity, With<Enemy>>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     for _ in collision_event_reader.read() {
-        if query.get_single().is_err() {
-            // Tank was destroyed, game over
-            next_state.set(GameState::GameOver);
+        let mut noti_text = "";
+        if enemies_query.iter().count() == 0 {
+            next_state.set(GameState::GameVictory);
+            noti_text = "Victory!";
         }
+        if query.iter().count() == 0 {
+            next_state.set(GameState::GameOver);
+            noti_text = "Game Over!";
+        }
+
+        if noti_text == "" {
+            continue;
+        }
+
+        commands.spawn((
+            Text2d::new(noti_text),
+            TextColor::WHITE,
+            TextFont {
+                font_size: 60.0,
+                ..default()
+            },
+            TextLayout::new_with_justify(JustifyText::Center),
+        ));
     }
 }

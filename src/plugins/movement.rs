@@ -1,7 +1,9 @@
+use crate::components::tank::TankObjectType;
 use crate::components::{collider::Collider, tank::Velocity};
 use bevy::prelude::*;
 
 use super::game_state::GameState;
+use super::map::{OutOfBoundTypes, check_out_of_bounds};
 
 #[derive(Component, Debug)]
 pub struct Acceleration {
@@ -34,8 +36,35 @@ fn update_velocity(mut query: Query<(&Acceleration, &mut Velocity)>, time: Res<T
     }
 }
 
-fn update_position(mut query: Query<(&Velocity, &mut Transform)>, time: Res<Time>) {
-    for (velocity, mut transform) in query.iter_mut() {
-        transform.translation += velocity.value * time.delta_secs();
+fn update_position(
+    sprites: Res<Assets<Image>>,
+    mut query: Query<(
+        &Velocity,
+        &mut Transform,
+        &GlobalTransform,
+        &Sprite,
+        &TankObjectType,
+    )>,
+    time: Res<Time>,
+) {
+    for (velocity, mut transform, global_transform, sprite, object_type) in query.iter_mut() {
+        let mut padding: f32 = 0.0;
+        match object_type {
+            TankObjectType::Tank => padding = 4.0,
+            _ => {}
+        }
+        let Some(image) = sprites.get(sprite.image.id()) else {
+            continue;
+        };
+        let translation = global_transform.translation();
+        match check_out_of_bounds(translation, image.size(), padding) {
+            OutOfBoundTypes::LeftVertical(v) => transform.translation.x = v,
+            OutOfBoundTypes::RightVertical(v) => transform.translation.x = v,
+            OutOfBoundTypes::LowHorizontal(v) => transform.translation.y = v,
+            OutOfBoundTypes::HighHorizontal(v) => transform.translation.y = v,
+            OutOfBoundTypes::None => {
+                transform.translation += velocity.value * time.delta_secs();
+            }
+        }
     }
 }
