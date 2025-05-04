@@ -1,5 +1,5 @@
 use super::asset_loader::ImageAssets;
-use super::game_state::GameState;
+use super::game_state::{GameState, PluginName, PluginReadyEvent};
 use super::movement::{Acceleration, MovingObjectBundle};
 use super::{ENEMIES_TAG_NAME, SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
 use crate::components::tank::{
@@ -50,11 +50,13 @@ impl Plugin for EnemyPlugin {
             Update,
             (
                 spawn_enemy,
-                handle_shell,
-                update_enemy_direction_state,
-                update_enemy_direction,
-            )
-                .run_if(in_state(GameState::InGame)),
+                (
+                    handle_shell,
+                    update_enemy_direction_state,
+                    update_enemy_direction,
+                )
+                    .run_if(in_state(GameState::InGame)),
+            ),
         );
     }
 }
@@ -66,6 +68,7 @@ fn spawn_enemy(
     time: Res<Time>,
     image_assets: Res<ImageAssets>,
     mut stop_spawn_enemy: ResMut<StopSpawnEnemy>,
+    mut plugin_state_event: EventWriter<PluginReadyEvent>,
 ) {
     spawn_timer.timer.tick(time.delta());
     if !spawn_timer.timer.just_finished() {
@@ -78,6 +81,9 @@ fn spawn_enemy(
 
     if query.iter().count() >= MAX_ENEMIES {
         stop_spawn_enemy.stop = true;
+        plugin_state_event.send(PluginReadyEvent {
+            plugin_name: PluginName::Enemy,
+        });
         return;
     }
 

@@ -1,5 +1,5 @@
-use super::collision_detection::CollisionEvent;
 use super::map::{OutOfBoundTypes, check_out_of_bounds};
+use crate::components::tank::TankObjectType;
 use crate::components::tank::{Enemy, Tank};
 use crate::plugins::game_state::GameState;
 use bevy::prelude::*;
@@ -35,26 +35,21 @@ fn despawn_entities(
 
 fn check_tank_destroyed(
     mut commands: Commands,
-    mut collision_event_reader: EventReader<CollisionEvent>,
-    query: Query<Entity, With<Tank>>,
+    query: Query<(Entity, &TankObjectType), With<Tank>>,
     enemies_query: Query<Entity, With<Enemy>>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    for _ in collision_event_reader.read() {
-        let mut noti_text = "";
-        if enemies_query.iter().count() == 0 {
-            next_state.set(GameState::GameVictory);
-            noti_text = "Victory!";
-        }
-        if query.iter().count() == 0 {
-            next_state.set(GameState::GameOver);
-            noti_text = "Game Over!";
-        }
+    let mut noti_text = "";
+    if enemies_query.iter().count() == 0 {
+        next_state.set(GameState::GameVictory);
+        noti_text = "Victory!";
+    }
+    if query.iter().count() == 0 {
+        next_state.set(GameState::GameOver);
+        noti_text = "Game Over!";
+    }
 
-        if noti_text == "" {
-            continue;
-        }
-
+    if noti_text != "" {
         commands.spawn((
             Text2d::new(noti_text),
             TextColor::WHITE,

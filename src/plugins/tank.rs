@@ -1,5 +1,5 @@
 use super::asset_loader::ImageAssets;
-use super::game_state::GameState;
+use super::game_state::{GameState, PluginName, PluginReadyEvent};
 use super::movement::{Acceleration, MovingObjectBundle};
 use super::{ALLIES_TAG_NAME, SHELL_FORWARD_SPAWN_SCALAR, SHELL_RADIUS, SHELL_SPEED};
 use crate::components::{
@@ -25,7 +25,11 @@ impl Plugin for TankPlugin {
     }
 }
 
-fn spawn_tank(mut commands: Commands, image_assets: Res<ImageAssets>) {
+fn spawn_tank(
+    mut commands: Commands,
+    image_assets: Res<ImageAssets>,
+    mut plugin_state_event: EventWriter<PluginReadyEvent>,
+) {
     commands.spawn((
         MovingObjectBundle {
             velocity: Velocity {
@@ -53,6 +57,9 @@ fn spawn_tank(mut commands: Commands, image_assets: Res<ImageAssets>) {
         Name::new(ALLIES_TAG_NAME),
         TankObjectType::Tank,
     ));
+    plugin_state_event.send(PluginReadyEvent {
+        plugin_name: PluginName::Tank,
+    });
 }
 
 fn handle_movement(
