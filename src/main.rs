@@ -1,5 +1,6 @@
 use bevy::{prelude::*, window::WindowResolution};
 use bevy_ecs_tilemap::prelude::*;
+use plugins::manual::ManualPlugin;
 
 mod components;
 mod plugins;
@@ -19,6 +20,7 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
         )
         .add_plugins(TilemapPlugin)
+        .add_plugins(ManualPlugin)
         .add_plugins(plugins::camera::CameraPlugin)
         .add_plugins(plugins::map::MapPlugin)
         .add_plugins(plugins::asset_loader::AssetLoaderPlugin)

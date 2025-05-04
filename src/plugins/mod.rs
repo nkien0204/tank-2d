@@ -5,6 +5,7 @@ pub mod debug;
 pub mod despawn;
 pub mod enemy;
 pub mod game_state;
+pub mod manual;
 pub mod map;
 pub mod movement;
 pub mod tank;
