@@ -2,10 +2,7 @@
 
 A 2D tank battle game built with the Bevy game engine.
 
-<video width="640" height="360" controls>
-  <source src="assets/tank_assets/tank2d.mov" type="video/quicktime">
-  Your browser does not support the video tag.
-</video>
+https://github.com/user-attachments/assets/a935068c-d574-4d9d-8e50-0384d2c5b79b
 
 *Tank 2D in action - battle against enemy tanks!*
 
